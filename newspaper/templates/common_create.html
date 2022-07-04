@@ -1,0 +1,31 @@
+{% extends 'default.html' %}
+
+{% block title %}
+Person create
+{% endblock title %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    {{ person_form }}
+    <input type="submit" value="Добавить персону">
+</form>
+<form method="POST">
+    {% csrf_token %}
+    {{ author_form }}
+    <input type="submit" value="Добавить автора">
+</form>
+<form method="POST">
+    {% csrf_token %}
+    {{ category_form }}
+    <input type="submit" value="Добавить категорию">
+</form>
+<br>
+<br>
+    <a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+   
+
+{% endblock content %}

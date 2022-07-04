@@ -1,0 +1,62 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %} Post delete {% endblock title %}
+
+{% block content %}
+<h2>Вы действительно хотите удалить данный товар?</h2>
+<table>
+    <tr>
+        <td>
+            Заголовок
+        </td>
+        <td>
+            Дата публикации
+        </td>
+        <td>
+            Превью
+        </td>
+        <td>
+            Автор
+        </td>
+        <td>
+            Категория
+        </td>
+    </tr>
+    <tr>
+        <td>
+            {{ post.publicationTitle|Censor }}
+        </td>
+        <td>
+            {{ post.publicationDate|date:'d M Y h:m' }}
+        </td>
+        <td>
+            {{ post.publicationText|truncatechars:50|Censor }}
+        </td>
+        <td>
+            {{ post.author }}
+        </td>
+        <td>
+            {% for categ in post_categories %}
+                {% if categ.postCatPost_id == post.pk %}
+                    {{ categ.postCatCategory }}
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<form method="POST">
+    {%csrf_token %}
+    <input type="submit" value="подтвердить">
+</form>
+<br>
+<br>
+<a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+<a href="{% url 'post_create' %}">Создать публикацию</a>
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+{% endblock content %}

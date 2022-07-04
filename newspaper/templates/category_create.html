@@ -1,0 +1,21 @@
+{% extends 'default.html' %}
+
+{% block title %}
+Добавить категорию
+{% endblock title %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Добавить категорию">
+</form>
+<br>
+<br>
+    <a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+   
+
+{% endblock content %}

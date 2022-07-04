@@ -1,0 +1,73 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Поиск новостной статьи
+{% endblock title %}
+
+{% block content %}
+<form method="GET">
+    {{ filter.form }}
+    <input type="submit" value="Найти">
+</form>
+
+    <h1>Список публикаций согласно фильтру</h1>
+    <h3>Количество публикаций: {{ filter.qs|length }}</h3>
+    <hr>
+    {% if news_search %}
+    <table>
+        <thead>
+            <th>
+                Заголовок
+            </th>
+            <th>
+                Дата публикации
+            </th>
+            <th>
+                Автор
+            </th>
+        </thead>
+    {% for ni in news_search %} 
+        <tr>
+            <td>
+                <a href="{% url 'post_detail' ni.id %}">{{ ni.publicationTitle|Censor }}</a>
+                <a href="{% url 'post_update' ni.id %}"><u>Редактировать</u></a>
+                <a href="{% url 'post_delete' ni.id %}"><u> Удалить</u></a>
+            </td>
+            <td>
+                {{ ni.publicationDate|date:'d M Y h:m' }}
+            </td>
+            <td>
+                {{ ni.author }}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    {% else %} <!-- Если товаров нет, то говорим что товаров нет ;) -->
+    <h2>Публикаций нет!</h2>
+    {% endif %}
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+<br>
+<br>
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?{{ request.get_full_path|update_page:1 }}">First</a>
+            <a href="?{{ request.get_full_path|update_page:page_obj.previous_page_number }}"><<<</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a>{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?{{ request.get_full_path|update_page:num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?{{ request.get_full_path|update_page:page_obj.next_page_number }}">>>></a>
+        <a href="?{{ request.get_full_path|update_page:page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
+{% endblock content %}

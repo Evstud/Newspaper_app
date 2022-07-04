@@ -1,0 +1,31 @@
+{% extends 'default.html' %}
+
+{% block title %}
+Добавить публикацию
+{% endblock title %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Добавить публикацию">
+</form>
+<br>
+<br>
+    <a href="{% url 'author_create' %}">Добавить автора</a>
+<br>
+<br>
+    <a href="{% url 'category_create' %}">Добавить категорию</a>
+<br>
+<br>
+    <a href="{% url 'person_create' %}">Добавить персону</a>
+<br>
+<br>
+    <a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+   
+
+{% endblock content %}
+

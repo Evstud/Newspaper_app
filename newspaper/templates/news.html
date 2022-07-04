@@ -1,0 +1,88 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Публикации
+{% endblock title %}
+
+{% block content %}
+    <h1>Все новости</h1>
+    <h3>Количество новостных статей: {{ news|length }}</h3>
+    <hr>
+    {% if news %}
+    <table>
+        <tr>
+            <td>
+                Заголовок
+            </td>
+            <td>
+                Дата публикации
+            </td>
+            <td>
+                Превью
+            </td>
+            <td>
+                Автор
+            </td>
+            <td>
+                Категория
+            </td>
+        </tr>
+    {% for ni in news %} 
+        <tr>
+            <td>
+                <a href="{% url 'post_detail' ni.id %}">{{ ni.publicationTitle|Censor }}</a>
+                <a href="{% url 'post_update' ni.id %}"><u>Редактировать</u></a>
+                <a href="{% url 'post_delete' ni.id %}"><u> Удалить</u></a>
+            </td>
+            <td>
+                {{ ni.publicationDate|date:'d M Y h:m' }}
+            </td>
+            <td>
+                {{ ni.publicationText|truncatechars:50|Censor }}
+            </td>
+            <td>
+                {{ ni.author.authorUser.username }}
+            </td>
+            <td>
+                {% for categ in post_categories %}
+                    {% if categ.postCatPost_id == ni.pk %}
+                        {{ categ.postCatCategory }}
+                    {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    {% else %} <!-- Если товаров нет, то говорим что товаров нет ;) -->
+    <h2>Публикаций нет!</h2>
+    {% endif %}
+<br>
+<br>
+    <a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+    <a href="{% url 'post_create' %}">Создать публикацию</a>
+<br>
+<br>
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a>{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">>>></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
+{% endblock content %}
+
