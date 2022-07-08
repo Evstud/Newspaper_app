@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import AuthorCreateView, CategoryCreateView, PersonCreateView, PostUpdateView, PostsList, PostListSearch, PostCreateView, PostDetailView, PostDeleteView
+from .views import upgrade_me, IndexView, AuthorCreateView, CategoryCreateView, PersonCreateView, PostUpdateView, PostsList, PostListSearch, PostCreateView, PostDetailView, PostDeleteView
+from django.contrib import admin
 
 
 urlpatterns = [
@@ -12,4 +13,6 @@ urlpatterns = [
     path('person_create/', PersonCreateView.as_view(), name='person_create'),
     path('author_create/', AuthorCreateView.as_view(), name='author_create'),
     path('category_create/', CategoryCreateView.as_view(), name='category_create'),
+    path('authorised_user/', IndexView.as_view(), name='authorised_user'),
+    path('authorised_user/upgrade/', upgrade_me, name = 'upgrade'),
 ]
