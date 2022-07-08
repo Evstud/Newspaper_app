@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db.models import Sum
 
+
 class Author(models.Model):
     authorUser = models.OneToOneField(User, on_delete = models.CASCADE)
     authorRanking = models.IntegerField(default = 0)

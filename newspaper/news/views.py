@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from .forms import CategoryForm, PostForm, PersonForm, AuthorForm
 from .models import Post, PostCategory
@@ -25,7 +26,8 @@ class PostsList(ListView):
         return context
 
 
-class PostCreateView(CreateView):
+class PostCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post', )
     template_name = 'post_create.html'
     form_class = PostForm
 
@@ -51,8 +53,8 @@ class PostListSearch(ListView):
     def get_context_data(self, *args, **kwargs):
         return {**super().get_context_data(*args, **kwargs), 'filter':self.get_filter()}
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
-    # login_url = '../../'
+class PostUpdateView(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = ('news.change_post', )
     template_name = 'post_create.html'
     form_class = PostForm
 
