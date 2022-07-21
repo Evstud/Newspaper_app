@@ -7,11 +7,19 @@
 {% block content %}
 <h2>Страница авторизованного пользователя {{request.user.username}}</h2>
 <div> Здесь может содержаться персональная информация для каждого пользователя </div>
+<div> Категории, на которые подписан пользователь:
+{% for cat_subs in categories_subscribed %}
+<br>
+{{ cat_subs.catName }}
+
+{% endfor %}
+</div>
    
 {% if is_not_author %}
 <button> <a href="upgrade/">Стать автором</a></button>
 {% endif %}
-
+<br>
+<br>
 <button> <a href="../../accounts/logout/">Выйти</a> </button>
 
 {% endblock content %}

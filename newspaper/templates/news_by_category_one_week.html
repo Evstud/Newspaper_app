@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <p>Здравствуй, {{ subscribername }}. Новые статьи в твоем любимом разделе: "{{ category }}"</p>
+        {% for post in posts_by_categories %}
+            <p>
+                <a href="{{ post.get_absolute_url }}">{{ post.publicationTitle }}</a>
+                , {{ post.publicationDate }}
+            </p>
+        {% endfor %}
+
+    </body>
+</html>

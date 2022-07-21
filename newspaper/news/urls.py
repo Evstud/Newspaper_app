@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import upgrade_me, IndexView, AuthorCreateView, CategoryCreateView, PersonCreateView, PostUpdateView, PostsList, PostListSearch, PostCreateView, PostDetailView, PostDeleteView
+from .views import subscribe_me, CategoryDetailView, upgrade_me, IndexView, AuthorCreateView, CategoryCreateView, PersonCreateView, PostUpdateView, PostsList, PostListSearch, PostCreateView, PostDetailView, PostDeleteView
 from django.contrib import admin
 
 
@@ -15,4 +15,7 @@ urlpatterns = [
     path('category_create/', CategoryCreateView.as_view(), name='category_create'),
     path('authorised_user/', IndexView.as_view(), name='authorised_user'),
     path('authorised_user/upgrade/', upgrade_me, name = 'upgrade'),
+    path('<int:pk>_category/', CategoryDetailView.as_view(), name='for_categories'),
+    path('<int:pk>_category/subscribe/', subscribe_me, name='subscribe'),
+
 ]

@@ -33,7 +33,9 @@
         <tr>
             <td>
                 <a href="{% url 'post_detail' ni.id %}">{{ ni.publicationTitle|Censor }}</a>
+                {% if author_user.id == ni.author.authorUser_id %}
                 <a href="{% url 'post_update' ni.id %}"><u>Редактировать</u></a>
+                {% endif %}
                 <a href="{% url 'post_delete' ni.id %}"><u> Удалить</u></a>
             </td>
             <td>
@@ -48,7 +50,7 @@
             <td>
                 {% for categ in post_categories %}
                     {% if categ.postCatPost_id == ni.pk %}
-                        {{ categ.postCatCategory }}
+                        <a href="{% url 'for_categories' categ.postCatCategory_id %}">{{ categ.postCatCategory }}</a>
                     {% endif %}
                 {% endfor %}
             </td>

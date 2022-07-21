@@ -1,16 +1,65 @@
-# from django.shortcuts import render
+from sqlite3 import Timestamp
+from django.shortcuts import render
+from gc import get_objects
+import imp
+from os import truncate
 from django.views.generic import FormView, TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.utils.text import Truncator
+from django.core.paginator import Paginator
+from datetime import date, timedelta, time, datetime
+from django.contrib import messages
+
+
+from django.template.loader import render_to_string
+
+from collections.abc import Iterable
 
 from .forms import CategoryForm, PostForm, PersonForm, AuthorForm
-from .models import Post, PostCategory
+from .models import Post, PostCategory, User, Category, Author
 from .filters import PostFilter
 
+
+class CategoryDetailView(ListView):
+    model = Category
+    template_name = 'news_by_categories/news_by_categories.html'
+    context_object_name = 'publications'
+    queryset = Category.objects.all()
+    paginate_by = 10
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_categories'] = PostCategory.objects.all()
+        context['pk_category'] = self.kwargs['pk']
+        category = Category.objects.get(id=self.kwargs['pk'])
+        context['category'] = category.catName
+        if self.request.user.is_authenticated:
+            context['is_not_subscribed'] = not self.request.user.category_set.filter(catName=category.catName).exists()
+        else: 
+            context['message'] = '!!! После авторизации здесь появится кнопка для подписки на данную категорию !!!'
+        return context
+
+
+    def get_queryset(self):
+        category = Category.objects.get(id=self.kwargs['pk'])
+        publications = category.post_set.all()
+        return publications
+    
+
+@login_required
+def subscribe_me(request, pk):
+    user = request.user
+    category_for_subscribe = Category.objects.get(id=pk)
+    if not request.user.category_set.filter(id=pk).exists():
+        category_for_subscribe.subscribers.add(user)
+    return redirect('/news/')
 
 class PostsList(ListView):
     model = Post
@@ -23,6 +72,7 @@ class PostsList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['post_categories'] = PostCategory.objects.all()
+        context['author_user'] = self.request.user
         return context
 
 
@@ -30,6 +80,44 @@ class PostCreateView(PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_post', )
     template_name = 'post_create.html'
     form_class = PostForm
+    
+    
+    def post(self, request, *args, **kwargs):
+        author_req = request.user
+        startdate = datetime.now()
+        enddate = startdate - timedelta(days=1)
+        all_posts_by_day = Post.objects.filter(publicationDate__range=[enddate, startdate])
+        authors_id = [i.get('authorUser') for i in list(Author.objects.values('authorUser'))]
+        if author_req.id in authors_id:    
+            author_user = Author.objects.get(authorUser_id=author_req.id)
+            author_posts_by_day = [i for i in all_posts_by_day if author_req.author.id == i.author.id]
+            if len(author_posts_by_day) < 3:
+                article = Post(
+                    author=author_user,
+                    publicationText=request.POST['publicationText'],
+                    publicationType=request.POST['publicationType'],
+                    publicationTitle=request.POST['publicationTitle'],
+                    )
+                article.save()
+                pc_objs=request.POST.getlist('postCategory')
+                article.postCategory.set(pc_objs)
+            else:
+                print('too much')
+
+        else: 
+            author_user = Author.objects.create(authorUser_id=author_req.id)
+            article = Post(
+                    author=author_user,
+                    publicationText=request.POST['publicationText'],
+                    publicationType=request.POST['publicationType'],
+                    publicationTitle=request.POST['publicationTitle'],
+                    )
+            article.save()
+            pc_objs=request.POST.getlist('postCategory')
+            article.postCategory.set(pc_objs)
+                  
+        return redirect('/news/')
+
 
 
 class PostListSearch(ListView):
@@ -39,10 +127,6 @@ class PostListSearch(ListView):
     queryset = Post.objects.filter(publicationType='NI').order_by('-publicationDate')
     paginate_by = 5
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset())
-    #     return context
     
     def get_filter(self):
         return PostFilter(self.request.GET, queryset=super().get_queryset())
@@ -99,6 +183,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_not_author'] = not self.request.user.groups.filter(name = 'authors').exists()
+        context['categories_subscribed'] = self.request.user.category_set.values('catName')
         return context
 
 @login_required

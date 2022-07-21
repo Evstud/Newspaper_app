@@ -1,0 +1,104 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Публикации в категории: "{{ category }}"
+{% endblock title %}
+
+{% block content %}
+<h2>
+    Публикации в категории: "{{ category }}"
+</h2>
+    <table>
+        <tr>
+            <td>
+                Заголовок
+            </td>
+            <td>
+                Дата публикации
+            </td>
+            <td>
+                Превью
+               
+            </td>
+            <td>
+                Автор
+            </td>
+            <td>
+                Категория
+            </td>
+        </tr>
+        <tr>
+            {% for publication in publications %}  
+            <tr>
+                <td> 
+                    <a href="{% url 'post_detail' publication.id %}">                         
+                        {{ publication.publicationTitle|Censor }}
+                    </a>
+                    {% if request.user.id == publication.author.authorUser_id %}
+                        <a href="{% url 'post_update' publication.id %}"><u>Редактировать</u></a>
+                    {% endif %}
+                    <a href="{% url 'post_delete' publication.id %}"><u> Удалить</u></a>
+                </td>
+            <!-- </tr> -->
+                <td>
+                    {{ publication.publicationDate|date:'d M Y h:m'}}
+                </td>
+                <td>
+                    {{ publication.publicationText|truncatechars:50|Censor }}
+                </td>
+                <td>
+                    {{ publication.author.authorUser.username}}
+                </td>
+                <td>
+                {% for categ in post_categories %}
+                    {% if categ.postCatPost_id == publication.id %}
+                        <a href="{% url 'for_categories' categ.postCatCategory_id %}">{{ categ.postCatCategory }}</a>
+                    {% endif %}
+                {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tr>
+    </table>
+{% if is_not_subscribed %}
+<br>
+<br>
+    <button><a href="subscribe/">Подписаться на: "{{ category }}"</a></button>
+{% endif %}
+<br>
+<br>
+<br>
+{{ message }}
+<br>
+<br>
+    <a href="{% url 'post_search' %}">Поиск публикации</a>
+<br>
+<br>
+    <a href="{% url 'post_create' %}">Создать публикацию</a>
+<br>
+<br>
+<a href="{% url 'main' %}">Главная страница</a>
+
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a>{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">>>></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
+   
+{% endblock content %}
+

@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 class PostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['author', 'publicationType', 'publicationTitle', 'publicationText', 'postCategory']
+        fields = ['publicationType', 'publicationTitle', 'publicationText', 'postCategory']
 
 
 class PersonForm(ModelForm):

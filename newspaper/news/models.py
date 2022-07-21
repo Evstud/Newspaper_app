@@ -26,6 +26,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     catName = models.CharField(max_length = 255, unique = True)
+    subscribers = models.ManyToManyField(User)
 
     def __str__(self):
         return f'{self.catName}'
@@ -61,15 +62,18 @@ class Post(models.Model):
         return self.publicationText[0:124] + '...'
     
     def get_absolute_url(self):
-        return f'/news/{self.id}'
+        return f'http://127.0.0.1:8000/news/{self.id}'
 
     def __str__(self):
-        return f'{self.id}{self.author.Author.authorUser.username}'
+        return f'{self.id}{self.author.authorUser.username}'
         
 
 class PostCategory(models.Model):
     postCatPost = models.ForeignKey(Post, on_delete = models.CASCADE)
     postCatCategory = models.ForeignKey(Category, on_delete = models.CASCADE)
+
+    # def __str__(self):
+    #     return f'{self.postCatCategory.catName}'
 
 
 class Comment(models.Model):

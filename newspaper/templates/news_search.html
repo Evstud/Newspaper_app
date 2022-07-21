@@ -32,7 +32,9 @@
         <tr>
             <td>
                 <a href="{% url 'post_detail' ni.id %}">{{ ni.publicationTitle|Censor }}</a>
+                {% if request.user.id == ni.author.authorUser_id %}
                 <a href="{% url 'post_update' ni.id %}"><u>Редактировать</u></a>
+                {% endif %}
                 <a href="{% url 'post_delete' ni.id %}"><u> Удалить</u></a>
             </td>
             <td>
